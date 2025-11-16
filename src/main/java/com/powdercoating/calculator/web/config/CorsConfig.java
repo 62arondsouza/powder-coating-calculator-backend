@@ -1,32 +1,38 @@
 package com.powdercoating.calculator.web.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class CorsConfig {
 	
-	@Value("${frontend.url:http://localhost:5173}")
-	private String frontendUrl;
+	@Autowired
+	private Environment env;
 	
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		
-		config.setAllowedOrigins(List.of(
+		// READ FROM RENDER ENV VAR
+		String frontendUrl = env.getProperty("frontend.url", "http://localhost:5173");
+		
+		// LOG FOR DEBUG
+		System.out.println("=== CORS CONFIG LOADED ===");
+		System.out.println("Allowed origins: [http://localhost:5173, " + frontendUrl + "]");
+		
+		config.setAllowedOrigins(Arrays.asList(
 				"http://localhost:5173",
 				frontendUrl
 		));
-		
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
+		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedHeaders(Arrays.asList("*"));
 		config.setAllowCredentials(true);
 		
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
